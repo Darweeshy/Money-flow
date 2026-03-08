@@ -2,7 +2,6 @@ package com.example.spring.microservice.userservice.service;
 
 import com.example.spring.microservice.userservice.dto.request.UpdateUserBalanceRequest;
 import com.example.spring.microservice.userservice.dto.request.UpdateUserBalanceRequest.BalanceOperation;
-import com.example.spring.microservice.userservice.dto.request.UpdateUserPasswordRequest;
 import com.example.spring.microservice.userservice.dto.request.UpdateUserRequest;
 import com.example.spring.microservice.userservice.dto.request.UpdateUserStatusRequest;
 import com.example.spring.microservice.userservice.dto.response.UserResponse;
@@ -31,8 +30,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public UserResponse getAuthenticatedUser(UUID userId) {
-        User user = findUserById(userId);
-        return UserResponse.from(user);
+        return UserResponse.from(findUserById(userId));
     }
 
     // ── PUT /users/me ────────────────────────────────────────
@@ -109,21 +107,30 @@ public class UserServiceImpl implements UserService {
         return UserResponse.from(findUserById(userId));
     }
 
-    // ── PATCH /users/{userId}/password ───────────────────────
-
-    @Override
-    @Transactional
-    public void updateUserPassword(UUID userId, UpdateUserPasswordRequest request) {
-        findUserById(userId);
-        userRepository.updateEmail(userId, request.getPasswordHash());
-    }
-
     // ── Existence check ──────────────────────────────────────
 
     @Override
     @Transactional(readOnly = true)
     public boolean userExists(UUID userId) {
         return userRepository.existsByUserId(userId);
+    }
+
+    // ── Internal lookups ─────────────────────────────────────
+
+    @Override
+    @Transactional(readOnly = true)
+    public UserResponse getUserByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException(email));
+        return UserResponse.from(user);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public UserResponse getUserByAccountNumber(String accountNumber) {
+        User user = userRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new UserNotFoundException("account: " + accountNumber));
+        return UserResponse.from(user);
     }
 
     // ── Shared helper ────────────────────────────────────────

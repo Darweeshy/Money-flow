@@ -25,12 +25,14 @@ public class UserResponse {
     private BigDecimal balance;
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;
+    private String accountNumber;
 
     public static UserResponse from(User user) {
         return UserResponse.builder()
                 .userId(user.getUserId())
                 .email(user.getEmail())
                 .displayName(user.getDisplayName())
+                .accountNumber(user.getAccountNumber())
                 .role(user.getRole())
                 .accountStatus(user.getAccountStatus())
                 .balance(user.getBalance())

@@ -1,7 +1,6 @@
 package com.example.spring.microservice.userservice.service;
 
 import com.example.spring.microservice.userservice.dto.request.UpdateUserBalanceRequest;
-import com.example.spring.microservice.userservice.dto.request.UpdateUserPasswordRequest;
 import com.example.spring.microservice.userservice.dto.request.UpdateUserRequest;
 import com.example.spring.microservice.userservice.dto.request.UpdateUserStatusRequest;
 import com.example.spring.microservice.userservice.dto.response.UserResponse;
@@ -31,15 +30,18 @@ public interface UserService {
 
     // ── Internal — called by other services ──────────────────
 
-    // PATCH /users/{userId}/status — called by Manage User Service
+    // PATCH /users/{userId}/status — called by admin or management services
     UserResponse updateUserStatus(UUID userId, UpdateUserStatusRequest request);
 
     // PATCH /users/{userId}/balance — called by Transfer Service consumer
     UserResponse updateUserBalance(UUID userId, UpdateUserBalanceRequest request);
 
-    // PATCH /users/{userId}/password — called by Auth Service
-    void updateUserPassword(UUID userId, UpdateUserPasswordRequest request);
-
     // GET existence check — called by Transfer Service to verify recipient
     boolean userExists(UUID userId);
+
+    // GET /internal/users/by-email/{email} — called by AuthService on login
+    UserResponse getUserByEmail(String email);
+
+    // GET /internal/users/by-account/{accountNumber} — called by Transfer Service
+    UserResponse getUserByAccountNumber(String accountNumber);
 }

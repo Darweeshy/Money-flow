@@ -8,6 +8,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -18,26 +20,21 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
+    private final InternalAuthFilter internalAuthFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // ── Disable CSRF — stateless REST API uses JWT not sessions
                 .csrf(AbstractHttpConfigurer::disable)
-
-                // ── Stateless — no HTTP session ever created or used
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
-                // ── Route-level access rules ─────────────────────
                 .authorizeHttpRequests(auth -> auth
 
-                        // Internal endpoints — only accessible from within
-                        // the private network (enforced at infrastructure level)
-                        // but we still restrict by role here as a second layer
-                        .requestMatchers("/internal/**").hasAnyRole("USER", "ADMIN")
+                        // Internal endpoints — protected by InternalAuthFilter (X-Internal-Secret header)
+                        // Declared as permitAll here because the filter enforces the actual secret check
+                        .requestMatchers("/internal/**").permitAll()
 
-                        // User's own profile — any authenticated user
+                        // User's own profile
                         .requestMatchers("/users/me").hasAnyRole("USER", "ADMIN")
 
                         // Admin-only endpoints
@@ -46,10 +43,15 @@ public class SecurityConfig {
                         // Reject everything else
                         .anyRequest().authenticated()
                 )
-
-                // ── Register JWT filter before Spring's default auth filter
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                // InternalAuthFilter runs first to reject bad internal-secret calls early
+                .addFilterBefore(internalAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(jwtAuthFilter, InternalAuthFilter.class);
 
         return http.build();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }

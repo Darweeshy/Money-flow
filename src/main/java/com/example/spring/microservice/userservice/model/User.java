@@ -52,4 +52,7 @@ public class User {
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private OffsetDateTime updatedAt;
+
+    @Column(name = "account_number", nullable = false, unique = true, length = 20)
+    private String accountNumber;
 }
