@@ -79,14 +79,14 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserByAccountNumber(accountNumber));
     }
 
-    @PatchMapping("/internal/users/{userId}/status")
+    @PutMapping("/internal/users/{userId}/status")
     public ResponseEntity<UserResponse> updateUserStatus(
             @PathVariable UUID userId,
             @Valid @RequestBody UpdateUserStatusRequest request) {
         return ResponseEntity.ok(userService.updateUserStatus(userId, request));
     }
 
-    @PatchMapping("/internal/users/{userId}/balance")
+    @PutMapping("/internal/users/{userId}/balance")
     public ResponseEntity<UserResponse> updateUserBalance(
             @PathVariable UUID userId,
             @Valid @RequestBody UpdateUserBalanceRequest request) {
