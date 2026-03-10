@@ -42,6 +42,9 @@ public interface UserService {
     // GET /internal/users/by-email/{email} — called by AuthService on login
     UserResponse getUserByEmail(String email);
 
+    // GET /internal/users/by-identifier/{identifier} — called by AuthService for case-insensitive login (email or username)
+    UserResponse getUserByIdentifier(String identifier);
+
     // GET /internal/users/by-account/{accountNumber} — called by Transfer Service
     UserResponse getUserByAccountNumber(String accountNumber);
 }

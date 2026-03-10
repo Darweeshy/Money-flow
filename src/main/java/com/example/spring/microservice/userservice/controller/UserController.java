@@ -73,6 +73,12 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserByEmail(email));
     }
 
+    @GetMapping("/internal/users/by-identifier/{identifier}")
+    public ResponseEntity<UserResponse> getUserByIdentifier(
+            @PathVariable String identifier) {
+        return ResponseEntity.ok(userService.getUserByIdentifier(identifier));
+    }
+
     @GetMapping("/internal/users/by-account/{accountNumber}")
     public ResponseEntity<UserResponse> getUserByAccountNumber(
             @PathVariable String accountNumber) {

@@ -127,6 +127,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
+    public UserResponse getUserByIdentifier(String identifier) {
+        User user = userRepository.findByIdentifier(identifier)
+                .orElseThrow(() -> new UserNotFoundException("identity: " + identifier));
+        return UserResponse.from(user);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public UserResponse getUserByAccountNumber(String accountNumber) {
         User user = userRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> new UserNotFoundException("account: " + accountNumber));

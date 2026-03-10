@@ -20,6 +20,10 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     // ── Single user lookups ──────────────────────────────────
 
+    // Used by Auth Service on every login to find user by email or username (case-insensitive)
+    @Query("SELECT u FROM User u WHERE LOWER(u.email) = LOWER(:identifier) OR LOWER(u.username) = LOWER(:identifier)")
+    Optional<User> findByIdentifier(@Param("identifier") String identifier);
+
     // Used by Auth Service on every login to find user by email
     Optional<User> findByEmail(String email);
 
